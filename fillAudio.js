@@ -3,14 +3,8 @@ const fs = require('fs');
 const Stream = require('stream')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-const doc = new GoogleSpreadsheet('1E0sAgrfx1g5czMTTAEzNZGoChKtt1ixRnDuLxpCcdEU');
-
-const MIN_TIME = 1000
-const MAX_TIME = 1500
-const LANG = 'he'
-const API_KEY = 'AIzaSyB5KQ6ZtxTPVD0fCh6XTsNtYuvlu9avcs8'
-const ANKI_DIR = '/Users/alekc/Library/Application Support/Anki2/1-й пользователь/collection.media/'
-
+const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR} = require('./settings.js')
+const doc = new GoogleSpreadsheet(SHEET_ID);
 const args = process.argv
 
 transformWords(+args[3],+args[2] || +args[3])
@@ -46,7 +40,7 @@ function combineCatalogFile(catalog) {
 }
 
 function getDelays(size, minTime = MIN_TIME, maxTime = MAX_TIME) {
-	 return Array.from({ length: size }, () => minTime + Math.random()*(maxTime-minTime));
+	return Array.from({ length: size }, () => minTime + Math.random()*(maxTime-minTime));
 }
 
 /**
@@ -66,11 +60,11 @@ function listToAudios(config,callback, delays = undefined) {
 }
 
 function stringToStream(str) {
-  const stream = new Stream.Readable()
-  stream._read = () => {}
-  stream.push(str)
-  stream.push(null)
-  return stream
+	const stream = new Stream.Readable()
+	stream._read = () => {}
+	stream.push(str)
+	stream.push(null)
+	return stream
 }
 
 
@@ -115,7 +109,7 @@ function saveToFileCallback(fileName, callback) {
 /**
  * Get audio for given phrase in given language.
  * Must be used with interval to not be banned for unathorized usage.
- * 
+ *
  * Example: phraseToSpeech('Привет', 'ru', saveToFileCallback('./test.wav'))
  */
 function phraseToSpeech(phrase, language, callback) {

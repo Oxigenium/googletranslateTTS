@@ -7,7 +7,7 @@ const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR} = require('./setti
 const doc = new GoogleSpreadsheet(SHEET_ID);
 const args = process.argv
 
-transformWords(+args[3],+args[2] || +args[3])
+transformWords(+args[3] || +args[2],+args[2])
 
 async function transformWords(endRow = 2000, startRow = 2) {
 	if (endRow < startRow || startRow < 2) {

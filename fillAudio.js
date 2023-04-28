@@ -7,32 +7,43 @@ const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR} = require('./setti
 const doc = new GoogleSpreadsheet(SHEET_ID);
 const args = process.argv
 
-transformWords(+args[3] || +args[2],+args[2])
+transformWords(+args[2],+args[3] || +args[2])
 
-async function transformWords(endRow = 2000, startRow = 2) {
-	if (endRow < startRow || startRow < 2) {
+async function transformWords(startRow = 2, endRow) {
+	if (!isNaN(startRow) && (endRow < startRow || startRow < 2)) {
 		console.error('Wrong interval!')
 		return
 	}
-	var hebrewWords = await getWords(endRow, startRow)
-	// console.log(hebrewWords)
+	if (isNaN(startRow) && isNaN(endRow)) {
+		startRow = 2
+	}
+	var hebrewWords = await getWords(startRow, endRow)
+	// console.log(hebrewWords) 
 	var catalog = hebrewWords.map((w, i) => ({word: w, i:i+startRow-1, fileName: `word_${i+startRow}.mp3`}))
 	var notEmptyCatalog = catalog.filter(e=>e.word)
 	var delays = getDelays(notEmptyCatalog.length)
 
-	console.log(`Start generating audiorecords from ${startRow} to ${endRow}, estimated time to finish: ${Math.ceil(delays.reduce((acc, v) => acc+v)/1000)}s`)
+	console.log(`Start generating audiorecords from ${startRow} to ${endRow || hebrewWords.length+1}, estimated time to finish: ${Math.ceil(delays.reduce((acc, v) => acc+v)/1000)}s`)
 
 	listToAudios({language:LANG, dir:ANKI_DIR, list: notEmptyCatalog.map(e=>[e.word,e.fileName])}, function () {
 		// saveToFileCallback('./files/catalog.txt')(combineCatalogFile(catalog))
 	}, delays)
 }
 
-async function getWords(endRow = 2000, startRow = 2) {
+async function getWords(startRow = 2, endRow) {
 	await doc.useApiKey(API_KEY);
 	await doc.loadInfo(); // loads document properties and worksheets
 	const sheet = doc.sheetsByTitle['DB']
 	var rows = await sheet.getRows()
-	return rows.map(r=>r['Слово']).slice(startRow-2, endRow-1)
+
+	return rows.map(r=>r['Слово'])
+		.reduceRight((acc, val) => {
+		    if (val !== '' || acc.length > 0) {
+		      acc.unshift(val);
+		    }
+		    return acc;
+		  }, [])
+		.slice(startRow-2, endRow ? endRow-1 : undefined)
 }
 
 function combineCatalogFile(catalog) {

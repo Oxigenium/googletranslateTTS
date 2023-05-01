@@ -3,7 +3,7 @@ const fs = require('fs');
 const Stream = require('stream')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR} = require('./settings.js')
+const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME} = require('./settings.js')
 const doc = new GoogleSpreadsheet(SHEET_ID);
 const args = process.argv
 
@@ -33,10 +33,10 @@ async function transformWords(startRow = 2, endRow) {
 async function getWords(startRow = 2, endRow) {
 	await doc.useApiKey(API_KEY);
 	await doc.loadInfo(); // loads document properties and worksheets
-	const sheet = doc.sheetsByTitle['DB']
+	const sheet = doc.sheetsByTitle[DICT_SHEET_NAME]
 	var rows = await sheet.getRows()
 
-	return rows.map(r=>r['Слово'])
+	return rows.map(r=>r[WORD_COLUMN])
 		.reduceRight((acc, val) => {
 		    if (val !== '' || acc.length > 0) {
 		      acc.unshift(val);

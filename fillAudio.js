@@ -44,6 +44,11 @@ async function getWords(startRow = 2, endRow) {
 		    return acc;
 		  }, [])
 		.slice(startRow-2, endRow ? endRow-1 : undefined)
+		.map(w=>formatForTTS(w))
+}
+
+function formatForTTS(word) {
+	return word.replace('\n','/')
 }
 
 function combineCatalogFile(catalog) {

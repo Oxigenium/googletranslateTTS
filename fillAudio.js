@@ -11,7 +11,8 @@ transformWords(+args[2],+args[3] || +args[2])
 
 async function transformWords(startRow = 2, endRow) {
 	if (!isNaN(startRow) && (endRow < startRow || startRow < 2)) {
-		console.error('Wrong interval!')
+		console.error(`Wrong interval! startRow=${startRow} endRow=${endRow
+	}`)
 		return
 	}
 	if (isNaN(startRow) && isNaN(endRow)) {
@@ -33,8 +34,15 @@ async function transformWords(startRow = 2, endRow) {
 async function getWords(startRow = 2, endRow) {
 	await doc.useApiKey(API_KEY);
 	await doc.loadInfo(); // loads document properties and worksheets
+	if (!doc.sheetsByTitle.hasOwnProperty(DICT_SHEET_NAME)) {
+		console.error(`Sheet ${DICT_SHEET_NAME} is not found in spreadsheet`)
+	}
 	const sheet = doc.sheetsByTitle[DICT_SHEET_NAME]
 	var rows = await sheet.getRows()
+
+	if (!rows[0].hasOwnProperty(WORD_COLUMN)) {
+		console.error(`Column ${WORD_COLUMN} is not in the sheet`)
+	}
 
 	return rows.map(r=>r[WORD_COLUMN])
 		.reduceRight((acc, val) => {
@@ -48,6 +56,9 @@ async function getWords(startRow = 2, endRow) {
 }
 
 function formatForTTS(word) {
+	if (typeof word === 'undefined') {
+		console.error(`Slicing of spreadsheet resulted in undefined`)
+	}
 	return word.replace('\n','/')
 }
 
@@ -67,8 +78,13 @@ function getDelays(size, minTime = MIN_TIME, maxTime = MAX_TIME) {
  */
 function listToAudios(config,callback, delays = undefined) {
 	var fileNames = []
-	spreadInTime(phraseToSpeech, config.list.map(entry => [entry[0],config.language,saveToFileCallback(config.dir + entry[1], function(fileName) {
-		fileNames.push(fileName)
+	spreadInTime(
+		phraseToSpeech, 
+		config.list.map(entry => 
+			[entry[0],config.language,saveToFileCallback(
+				config.dir + entry[1], 
+				function(fileName) {
+					fileNames.push(fileName)
 	})]), function() {
 		if (typeof callback === 'function')
 			callback(fileNames)

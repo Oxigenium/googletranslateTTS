@@ -52,11 +52,12 @@ async function getWords(startRow = 2, endRow) {
 		    return acc;
 		  }, [])
 		.slice(startRow-2, endRow ? endRow-1 : undefined)
+		.filter(w=> !!w)
 		.map(w=>formatForTTS(w))
 }
 
 function formatForTTS(word) {
-	if (typeof word === 'undefined') {
+	if (word == undefined) {
 		console.error(`Slicing of spreadsheet resulted in undefined`)
 	}
 	return word.replace('\n','/')

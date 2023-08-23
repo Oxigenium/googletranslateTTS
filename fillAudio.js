@@ -3,7 +3,7 @@ const fs = require('fs');
 const Stream = require('stream')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME, FLAGS} = require('./settings.js')
+const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME, FILES_PREFIX, FLAGS} = require('./settings.js')
 const doc = new GoogleSpreadsheet(SHEET_ID);
 const args = process.argv
 
@@ -20,7 +20,7 @@ async function transformWords(startRow = 2, endRow) {
 	}
 	var hebrewWords = await getWords(startRow, endRow)
 	// console.log(hebrewWords) 
-	var catalog = hebrewWords.map((w, i) => ({word: w, i:i+startRow-1, fileName: `word_${i+startRow}.mp3`}))
+	var catalog = hebrewWords.map((w, i) => ({word: w, i:i+startRow-1, fileName: `${!!FILES_PREFIX ? FILES_PREFIX + '_' : ''}word_${i+startRow}.mp3`}))
 	var notEmptyCatalog = catalog.filter(e=>e.word)
 	var delays = getDelays(notEmptyCatalog.length)
 

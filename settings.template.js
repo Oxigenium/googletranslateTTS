@@ -6,8 +6,9 @@ const LANG = 'he'
 const ANKI_DIR = 'C:\\'
 const WORD_COLUMN = 'Слово'
 const DICT_SHEET_NAME = 'DB'
+const FILES_PREFIX = ''
 const FLAGS = {
     ignoreEmptyRows: false
 }
 
-module.exports = {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME, FLAGS}
+module.exports = {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME, FILES_PREFIX, FLAGS}

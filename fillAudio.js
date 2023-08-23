@@ -3,7 +3,7 @@ const fs = require('fs');
 const Stream = require('stream')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME} = require('./settings.js')
+const {API_KEY, SHEET_ID, MIN_TIME, MAX_TIME, LANG, ANKI_DIR, WORD_COLUMN, DICT_SHEET_NAME, FLAGS} = require('./settings.js')
 const doc = new GoogleSpreadsheet(SHEET_ID);
 const args = process.argv
 
@@ -52,7 +52,7 @@ async function getWords(startRow = 2, endRow) {
 		    return acc;
 		  }, [])
 		.slice(startRow-2, endRow ? endRow-1 : undefined)
-		.filter(w=> !!w)
+		.filter(w=> FLAGS.ignoreEmptyRows ? !!w : true)
 		.map(w=>formatForTTS(w))
 }
 
